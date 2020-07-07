@@ -1,0 +1,4 @@
+10;Porco dio in scatola;17,50;25
+25;Porco dio in barattolo;25,17;12
+17;Porco dio in croce;1000;4
+32;pippo;1;1
