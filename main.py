@@ -78,8 +78,7 @@ def insert(id=None, index=None):
             choice = input('Press Y for yes, any other character to back to menu: ').lower()
             if choice == 'y':
                 update(indexItem)
-            else:
-                return
+            return
     sortedItems.insert(index, item)
     return
 
@@ -99,14 +98,13 @@ def update(indexItem = None):
         foundCart, indexCart = binarySearch(cart, 0, len(cart) - 1, sortedItems[indexItem]['id'])
         if foundCart:
             updateFromCart(indexCart, indexItem)
-        return
     else:
         print('Item not found, would you like to insert it?')
         choice = input('Press Y for yes, any other character to back to menu: ').lower()
         if choice == 'y':
             insert(id)
-        else:
-            return
+    print('The item has been updated\n')
+    return
 
 
 # function that show an existing item
@@ -155,6 +153,7 @@ def addToCart():
         cartItem = sortedItems[indexItem]
         cartItem['quantity'] = quantity
         cart.append(cartItem)
+        #alterStock(-quantity, item=sortedItems[indexItem])
         print('The item has been added in the cart\n')
     else:
         print('Item not found, please create it before add in the cart\n')
@@ -167,6 +166,7 @@ def deleteFromCart(id = None):
     found, index = binarySearch(cart, 0, len(cart) - 1, id)
     if found:
         cart.pop(index)
+        alterStock(cart[index]['quantity'], id=id)
         print('The item has been deleted from the cart\n')
     else:
         print('Item not in the cart\n')
@@ -187,18 +187,29 @@ def updateFromCart(indexCart=None, indexItem=None):
                           sortedItems[indexItem]['quantity'])
                 else:
                     break
+            difference = cart[indexCart]['quantity'] - newQuantity
             cart[indexCart]['quantity'] = newQuantity
+            alterStock(difference, item=sortedItems[indexItem])
             print('The item has been updated\n')
         else:
             print('Item not in the cart\n')
     else:
         cart[indexCart]['name'] = sortedItems[indexItem]['name']
         cart[indexCart]['price'] = sortedItems[indexItem]['price']
-        while sortedItems[indexItem]['quantity'] < cart[indexCart]['quantity']:
-            print('The quantity of ' + sortedItems[indexItem][
-                'name'] + ' in the cart is greater then the quantity in the stock.\n'
-                          'The maximum quantity is ' + str(sortedItems[indexItem]['quantity']))
-            cart[indexCart]['quantity'] = int(input('Please, update the quantity in the cart: '))
+        '''
+        newQuantity = cart[indexCart]['quantity']
+        while True:
+            if sortedItems[indexItem]['quantity'] < newQuantity:
+                print('The quantity of ' + sortedItems[indexItem][
+                    'name'] + ' in the cart is greater then the quantity in the stock.\n'
+                              'The maximum quantity is ' + str(sortedItems[indexItem]['quantity']))
+                newQuantity = int(input('Please, update the quantity in the cart: '))
+            else:
+                break
+        difference = cart[indexCart]['quantity'] - newQuantity
+        cart[indexCart]['quantity'] = newQuantity
+        alterStock(difference, item=sortedItems[indexItem])
+        '''
         print('The item in the cart has been updated\n')
     return
 
@@ -213,10 +224,6 @@ def checkoutFromCart():
     print('Do you want to continue?')
     choice = input('Press Y for yes, any other character to back to menu: ').lower()
     if choice == 'y':
-        for item in cart:
-            foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
-            if foundItem:
-                sortedItems[indexItem]['quantity'] -= item['quantity']
         cart.clear()
         print('The changes have been applied')
     else:
@@ -238,6 +245,13 @@ def quit():
 def printItem(item):
     print('id:', item['id'], ' --- description:', item['name'], ' --- price:',
               item['price'], ' --- quantity:', item['quantity'])
+
+def alterStock(quantity, item=None, id=None):
+    if not item:
+        foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
+        item = sortedItems[indexItem]
+    item['quantity'] += quantity
+
 
 
 def binarySearch(list, firstIndex, secondIndex, target):
