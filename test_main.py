@@ -31,7 +31,6 @@ class TestStockManager(unittest.TestCase):
         manager.insert_in_stock(item)
         # get item from stock
         success, index = manager.get_from_stock(item['id'])
-
         # assert that item has been added
         self.assertEqual(success, True)
         # assert that item is equals

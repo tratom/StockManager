@@ -1,3 +1,4 @@
+1;product 1;1;1
 10;Porco dio in scatola;17.5;25
 17;Porco dio in croce;1000.0;2
 25;Porco dio in barattolo;25.17;12

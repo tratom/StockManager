@@ -89,11 +89,14 @@ def show():
 # function that insert a new item in the correct position of the dictionary
 # @id is the id to be added
 # @index is the index of the list where the new item should be added
-def insert_in_stock(item, indexItem=None):
-    foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
-    if foundItem:
-        return False, indexItem
-    sortedItems.insert(indexItem, item)
+def insert_in_stock(item, index=None):
+    if not index:
+        foundItem, index = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
+        if foundItem:
+            return False, index
+        sortedItems.insert(index, item)
+    else:
+        sortedItems.insert(index, item)
     return True, None
 
 def get_from_stock(id):
@@ -101,8 +104,6 @@ def get_from_stock(id):
     if found:
         return True, index
     return False, index
-
-
 
 # function that update an existing item
 def update(indexItem = None):
