@@ -1,7 +1,6 @@
 import atexit
 import sys
 
-
 def main():
     global sortedItems, cart
     cart = list()
@@ -53,33 +52,56 @@ def menu():
             6: lambda: deleteFromCart(),
             7: lambda: updateFromCart(),
             8: lambda: checkoutFromCart(),
-            9: lambda: sys.exit(0)  # quit()
+            9: lambda: sys.exit(0)
         }
 
         caller = choices.get(choice, lambda: print('Unknown command'))
         caller()
 
-
-
-# function that insert a new item in the correct position of the dictionary
-# @id is the id to be added
-# @index is the index of the list where the new item should be added
-def insert(id=None, index=None):
+def insert():
     item = {
         'id': id if id else int(input('Insert the numeric id: ')),
         'name': input('Insert item description: '),
         'price': float(input('Insert the price for unit: ').replace(',', '.')),
         'quantity': int(input('Insert the quantity: '))
     }
-    if not index:
-        foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
-        if foundItem:
-            print('This item already exist. Do you want to modify it?')
-            if askConfirmation():
-                update(indexItem)
-            return
-    sortedItems.insert(index, item)
+    success, index = insert_in_stock(item)
+    if success:
+        print('The item has been added in the stock')
+    else:
+        print('This item already exist. Do you want to modify it?')
+        if askConfirmation():
+            update(indexItem)
     return
+
+# function that show an existing item
+def show():
+    success, index = int(input('Insert id to be find: '))
+    if success:
+        printItem(sortedItems[index])
+    else:
+        print('Item not found, would you like to insert it?')
+        if askConfirmation():
+            insert(id, index)
+    return
+
+
+# function that insert a new item in the correct position of the dictionary
+# @id is the id to be added
+# @index is the index of the list where the new item should be added
+def insert_in_stock(item, indexItem=None):
+    foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
+    if foundItem:
+        return False, indexItem
+    sortedItems.insert(indexItem, item)
+    return True, None
+
+def get_from_stock(id):
+    found, index = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
+    if found:
+        return True, index
+    return False, index
+
 
 
 # function that update an existing item
@@ -103,21 +125,6 @@ def update(indexItem = None):
             insert(id)
     print('The item has been updated\n')
     return
-
-
-# function that show an existing item
-def show():
-    id = int(input('Insert id to be find: '))
-    found, index = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
-    if found:
-        printItem(sortedItems[index])
-        return
-    else:
-        print('Item not found, would you like to insert it?')
-        if askConfirmation():
-            insert(id, index)
-        else:
-            return
 
 
 def delete():
@@ -251,7 +258,7 @@ def alterStock(quantity, item=None, id=None):
 
 def askConfirmation(message = 'Press Y for yes, any other character to back to menu: '):
     choice = input(message).lower()
-    if choice == 'y'
+    if choice == 'y':
         return True
     return False
 
@@ -276,4 +283,5 @@ def binarySearch(list, firstIndex, secondIndex, target):
 # using ´atexit´ python standard library
 atexit.register(quit)
 
-main()
+if __name__ == "__main__":
+    main()
