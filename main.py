@@ -8,7 +8,7 @@ def main():
     items = list()
     database = open('database.txt', 'r')
 
-    # popolating the list of dictionary with the data of the text file
+    # populating the list of dictionary with the data of the text file
     for object in database:
         column = object.split(';')
         items.append(
@@ -75,8 +75,7 @@ def insert(id=None, index=None):
         foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
         if foundItem:
             print('This item already exist. Do you want to modify it?')
-            choice = input('Press Y for yes, any other character to back to menu: ').lower()
-            if choice == 'y':
+            if askConfirmation():
                 update(indexItem)
             return
     sortedItems.insert(index, item)
@@ -100,8 +99,7 @@ def update(indexItem = None):
             updateFromCart(indexCart, indexItem)
     else:
         print('Item not found, would you like to insert it?')
-        choice = input('Press Y for yes, any other character to back to menu: ').lower()
-        if choice == 'y':
+        if askConfirmation():
             insert(id)
     print('The item has been updated\n')
     return
@@ -116,8 +114,7 @@ def show():
         return
     else:
         print('Item not found, would you like to insert it?')
-        choice = input('Press Y for yes, any other character to back to menu: ').lower()
-        if choice == 'y':
+        if askConfirmation():
             insert(id, index)
         else:
             return
@@ -222,8 +219,7 @@ def checkoutFromCart():
         total += item['price'] * item['quantity']
     print('TOTAL:', total)
     print('Do you want to continue?')
-    choice = input('Press Y for yes, any other character to back to menu: ').lower()
-    if choice == 'y':
+    if askConfirmation():
         cart.clear()
         print('The changes have been applied')
     else:
@@ -237,7 +233,6 @@ def quit():
     for item in sortedItems:
         tmp = str(item['id']) + ';' + item['name'] + ';' + str(item['price']) + ';' + str(item['quantity']) + '\n'
         database.write(tmp)
-        # print(';'.join(str(v) for v in item.values()))
     database.close()
     print('Byebye')
 
@@ -252,6 +247,12 @@ def alterStock(quantity, item=None, id=None):
         item = sortedItems[indexItem]
     item['quantity'] += quantity
 
+
+def askConfirmation(message = 'Press Y for yes, any other character to back to menu: '):
+    choice = input(message).lower()
+    if choice == 'y'
+        return True
+    return False
 
 
 def binarySearch(list, firstIndex, secondIndex, target):
@@ -273,6 +274,3 @@ def binarySearch(list, firstIndex, secondIndex, target):
 atexit.register(quit)
 
 main()
-
-
-# todo aggiornare quantità della merce in stock quando si fanno operazioni sul cart (aggiunta, rimozione, modifica di elementi nel carrello)
