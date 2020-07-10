@@ -58,20 +58,26 @@ def menu():
         caller = choices.get(choice, lambda: print('Unknown command'))
         caller()
 
-def insert(id=None):
+def insert(id=None, index=None):
     item = {
         'id': id if id else int(input('Insert the numeric id: ')),
         'name': input('Insert item description: '),
         'price': float(input('Insert the price for unit: ').replace(',', '.')),
         'quantity': int(input('Insert the quantity: '))
     }
-    success, index = insert_in_stock(item)
-    if success:
-        print('The item has been added in the stock')
+    # if index is not specified insert without searching it
+    if not index:
+        success, index = insert_in_stock(item)
+        if success:
+            print('The item has been added in the stock')
+        else:
+            print('This item already exist. Do you want to modify it?')
+            if askConfirmation():
+                update(index)
     else:
-        print('This item already exist. Do you want to modify it?')
-        if askConfirmation():
-            update(index)
+        # index is already specified and we assume that item doesn't exists
+        success, index = insert_in_stock(item, index)
+        print('The item has been added in the stock')
     return
 
 # function that show an existing item
