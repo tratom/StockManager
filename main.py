@@ -8,7 +8,7 @@ def main():
     items = list()
     database = open('database.txt', 'r')
 
-    # populating the list of dictionary with the data of the text file
+    # populate the list of dictionary with the data of the text file
     for object in database:
         column = object.split(';')
         items.append(
@@ -21,7 +21,7 @@ def main():
         )
 
     database.close()
-    # sorting of the list of dictionary
+    # sort list of dictionary
     sortedItems = sorted(items, key=lambda i: i['id'])
     menu()
 
@@ -229,6 +229,7 @@ def checkoutFromCart():
 
 
 def quit():
+    # save all changes stored in memory to database file when application exit
     database = open('database.txt', 'w')
     for item in sortedItems:
         tmp = str(item['id']) + ';' + item['name'] + ';' + str(item['price']) + ';' + str(item['quantity']) + '\n'
@@ -271,6 +272,8 @@ def binarySearch(list, firstIndex, secondIndex, target):
         return False, firstIndex
 
 
+# define a callback function when application exit
+# using ´atexit´ python standard library
 atexit.register(quit)
 
 main()
