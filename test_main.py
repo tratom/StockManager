@@ -36,6 +36,38 @@ class TestStockManager(unittest.TestCase):
         # assert that item is equals
         self.assertEqual(item, manager.sortedItems[index])
 
+    def test_search_and_insert_non_existing_item(self):
+        self.__init_stock__()
+        item = {'id': 20, 'name': "product 1", 'price': 1, 'quantity': 1}
+        success, index = manager.get_from_stock(item['id'])
+        self.assertEqual(success, False)
+        manager.insert_in_stock(item, index)
+        self.assertEqual(item, manager.sortedItems[index])
+
+
+    def test_update_existing_item(self):
+        self.__init_stock__()
+        item = {'id': 32, 'name': "updated product", 'price': 1, 'quantity': 1}
+
+        success, index = manager.get_from_stock(item['id'])
+        self.assertEqual(success, True)
+
+        manager.update_in_stock(item, index)
+
+        self.assertEqual(item['name'], manager.sortedItems[index]['name'])
+
+    def test_delete_from_stock(self):
+        self.__init_stock__()
+        item = {'id': 10, 'name': "updated product", 'price': 1, 'quantity': 1}
+
+        success, index = manager.get_from_stock(item['id'])
+        self.assertEqual(success, True)
+
+        manager.delete_from_stock(index)
+
+        success, index = manager.get_from_stock(item['id'])
+        self.assertEqual(success, False)
+
 
 if __name__ == '__main__':
     unittest.main()

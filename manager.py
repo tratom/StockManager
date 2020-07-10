@@ -58,7 +58,7 @@ def menu():
         caller = choices.get(choice, lambda: print('Unknown command'))
         caller()
 
-def insert():
+def insert(id=None):
     item = {
         'id': id if id else int(input('Insert the numeric id: ')),
         'name': input('Insert item description: '),
@@ -71,12 +71,13 @@ def insert():
     else:
         print('This item already exist. Do you want to modify it?')
         if askConfirmation():
-            update(indexItem)
+            update(index)
     return
 
 # function that show an existing item
 def show():
-    success, index = int(input('Insert id to be find: '))
+    id = int(input('Insert id to be find: '))
+    success, index = get_from_stock(id)
     if success:
         printItem(sortedItems[index])
     else:
@@ -85,14 +86,58 @@ def show():
             insert(id, index)
     return
 
+# function that update an existing item
+def update(index = None):
+    foundItem = False
+    id = -1
+    if not index:
+        id = int(input('Insert id to be modified: '))
+        foundItem, index = get_from_stock(id)
+
+    item = {
+        'id': id,
+        'name': input('Insert the new description: '),
+        'price': float(input('Insert the new price: ').replace(',', '.')),
+        'quantity': int(input("Insert the new quantity: "))
+    }
+
+    if foundItem or index:
+        update_in_stock(item, index)
+        print('The item has been updated\n')
+        # update cart todo: refactor
+        foundCart, indexCart = binarySearch(cart, 0, len(cart) - 1, sortedItems[indexItem]['id'])
+        if foundCart:
+            updateFromCart(indexCart, indexItem)
+    else:
+        print('Item not found, would you like to insert it?')
+        if askConfirmation():
+            success, newIndex = insert_in_stock(item, index if index else None)
+            if success:
+                print('The item has been added\n')
+    return
+
+def delete():
+    id = int(input('Insert id to be deleted: '))
+    success, index = get_from_stock(id)
+    if success:
+        delete_from_stock(index)
+        deleteFromCart(id)
+        print('The item has been deleted\n')
+    else:
+        print('Item not found\n')
+    return
+
+#*
+#* Stock core functions
+#*
 
 # function that insert a new item in the correct position of the dictionary
 # @id is the id to be added
 # @index is the index of the list where the new item should be added
 def insert_in_stock(item, index=None):
     if not index:
-        foundItem, index = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
-        if foundItem:
+        found, index = binarySearch(sortedItems, 0, len(sortedItems) - 1, item['id'])
+        if found:
             return False, index
         sortedItems.insert(index, item)
     else:
@@ -105,39 +150,15 @@ def get_from_stock(id):
         return True, index
     return False, index
 
-# function that update an existing item
-def update(indexItem = None):
-    foundItem = False
-    id = -1
-    if not indexItem:
-        id = int(input('Insert id to be modified: '))
-        foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
-    if foundItem or indexItem:
-        sortedItems[indexItem]['name'] = input('Insert the new description: ')
-        sortedItems[indexItem]['price'] = float(input('Insert the new price: ').replace(',', '.'))
-        sortedItems[indexItem]['quantity'] = int(input("Insert the new quantity: "))
+def update_in_stock(item, index):
+    sortedItems[index] = item
+    return True, index
 
-        foundCart, indexCart = binarySearch(cart, 0, len(cart) - 1, sortedItems[indexItem]['id'])
-        if foundCart:
-            updateFromCart(indexCart, indexItem)
-    else:
-        print('Item not found, would you like to insert it?')
-        if askConfirmation():
-            insert(id)
-    print('The item has been updated\n')
+def delete_from_stock(index):
+    sortedItems.pop(index)
     return
 
-
-def delete():
-    id = int(input('Insert id to be deleted: '))
-    found, index = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
-    if found:
-        sortedItems.pop(index)
-        deleteFromCart(id)
-        print('The item has been deleted\n')
-    else:
-        print('Item not found\n')
-    return
+# -------- to be refactored
 
 
 def addToCart():
