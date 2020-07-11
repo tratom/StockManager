@@ -58,6 +58,10 @@ def menu():
         caller = choices.get(choice, lambda: print('Unknown command'))
         caller()
 
+#*
+#* Stock functons
+#*
+
 def insert(id=None, index=None):
     item = {
         'id': id if id else int(input('Insert the numeric id: ')),
@@ -166,30 +170,58 @@ def delete_from_stock(index):
 
 # -------- to be refactored
 
+#*
+#* Cart functions
+#*
 
 def addToCart():
     id = int(input('Insert the id to be added in the cart: '))
-    foundCart, indexCart = binarySearch(cart, 0, len(cart) - 1, id)
-    foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
-    if foundCart:
+    success, indexCart = get_from_cart(id)
+    if success:
         print('This item is already present in the cart')
-    elif foundItem:
-        while True:
-            quantity = int(
-                input('Insert the quantity of ' + sortedItems[indexItem]['name'] + ' to be added to the cart: '))
-            if quantity > sortedItems[indexItem]['quantity']:
-                print('The quantity exceed the quantity in stock. The maximum quantity is',
-                      sortedItems[indexItem]['quantity'])
-            else:
-                break
-        cartItem = sortedItems[indexItem]
-        cartItem['quantity'] = quantity
-        cart.append(cartItem)
-        #alterStock(-quantity, item=sortedItems[indexItem])
-        print('The item has been added in the cart\n')
     else:
-        print('Item not found, please create it before add in the cart\n')
+        success, indexItem = get_from_stock(id)
+        if success:
+            added = False
+            while not added:
+                quantity = int(
+                    input('Insert the quantity of ' + sortedItems[indexItem]['name'] + ' to be added to the cart: '))
+                added = insert_in_cart(indexItem, quantity)
+                if not added:
+                    print('The quantity exceed the quantity in stock. The maximum quantity is',
+                          sortedItems[indexItem]['quantity'])
+
+            print('The item has been added in the cart\n')
+        else:
+            print('Item not found, please create it before add in the cart\n')
+
     return
+
+#*
+#* Cart core functions
+#*
+
+def insert_in_cart(indexItem, quantity):
+    if sortedItems[indexItem]['quantity'] < quantity:
+        return False
+
+    # add item in the cart
+    cartItem = dict(sortedItems[indexItem])
+    cartItem['quantity'] = quantity
+    cart.append(cartItem)
+
+    # decrease and update quantity in stock
+    sortedItems[indexItem].update({'quantity': sortedItems[indexItem]['quantity'] - quantity})
+
+    return True
+
+
+
+def get_from_cart(id):
+    found, index = binarySearch(cart, 0, len(cart) - 1, id)
+    if found:
+        return True, index
+    return False, index
 
 
 def deleteFromCart(id = None):

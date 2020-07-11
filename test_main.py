@@ -26,7 +26,7 @@ class TestStockManager(unittest.TestCase):
 
     def test_insert_in_stock(self):
         self.__init_stock__()
-        item = {'id': 1, 'name': "product 1", 'price': 1, 'quantity': 1}
+        item = {'id': 1, 'name': "product 1", 'price': 1.0, 'quantity': 1}
         # insert item in stock
         manager.insert_in_stock(item)
         # get item from stock
@@ -38,7 +38,7 @@ class TestStockManager(unittest.TestCase):
 
     def test_search_and_insert_non_existing_item(self):
         self.__init_stock__()
-        item = {'id': 20, 'name': "product 1", 'price': 1, 'quantity': 1}
+        item = {'id': 20, 'name': "product 1", 'price': 1.0, 'quantity': 1}
         success, index = manager.get_from_stock(item['id'])
         self.assertEqual(success, False)
         manager.insert_in_stock(item, index)
@@ -47,7 +47,7 @@ class TestStockManager(unittest.TestCase):
 
     def test_update_existing_item(self):
         self.__init_stock__()
-        item = {'id': 32, 'name': "updated product", 'price': 1, 'quantity': 1}
+        item = {'id': 32, 'name': "updated product", 'price': 1.0, 'quantity': 1}
 
         success, index = manager.get_from_stock(item['id'])
         self.assertEqual(success, True)
@@ -58,7 +58,7 @@ class TestStockManager(unittest.TestCase):
 
     def test_delete_from_stock(self):
         self.__init_stock__()
-        item = {'id': 10, 'name': "updated product", 'price': 1, 'quantity': 1}
+        item = {'id': 10, 'name': "updated product", 'price': 1.0, 'quantity': 1}
 
         success, index = manager.get_from_stock(item['id'])
         self.assertEqual(success, True)
@@ -67,6 +67,21 @@ class TestStockManager(unittest.TestCase):
 
         success, index = manager.get_from_stock(item['id'])
         self.assertEqual(success, False)
+
+    def test_add_item_to_cart(self):
+        self.__init_stock__()
+        item = {'id': 50, 'name': "product in cart", 'price': 1, 'quantity': 25}
+        manager.insert_in_stock(item)
+
+        success, index = manager.get_from_stock(item['id'])
+        self.assertEqual(success, True)
+
+        # add 10 item to the cart
+        manager.insert_in_cart(index, 10)
+
+        success, indexCart = manager.get_from_cart(item['id'])
+        self.assertEqual(manager.cart[indexCart]['quantity'], 10)
+        self.assertEqual(manager.sortedItems[index]['quantity'], 15)
 
 
 if __name__ == '__main__':
