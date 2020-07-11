@@ -208,6 +208,58 @@ def deleteFromCart(id = None):
         print('Item not in the cart\n')
     return
 
+
+def checkoutFromCart():
+    total = 0
+    print('SUMMARY:')
+    for item in cart:
+        printItem(item)
+        total += item['price'] * item['quantity']
+    print('TOTAL:', total)
+    print('Do you want to continue?')
+    if askConfirmation():
+        cart.clear()
+        print('The changes have been applied')
+    else:
+        print('The changes have not been applied')
+
+    return
+
+def updateFromCart(indexCart=None, indexItem=None):
+    if not indexCart:
+        id = int(input('Insert the id to be updated from the cart: '))
+        foundCart, indexCart = get_from_cart(id)
+        foundItem, indexItem = get_from_stock(id)
+
+        if foundCart:
+            print('There are', cart[indexCart]['quantity'], 'product in the cart')
+            updated = False
+            while not updated:
+                quantity = int(input('Update the quantity in the cart: : '))
+                updated = update_in_cart(indexCart, indexItem, quantity)
+                if not updated:
+                    print('The new quantity exceed the quantity in stock. The maximum quantity is',
+                          sortedItems[indexItem]['quantity'])
+        else:
+            print('Item not in the cart\n')
+            return
+    else:
+        cart[indexCart]['name'] = sortedItems[indexItem]['name']
+        cart[indexCart]['price'] = sortedItems[indexItem]['price']
+        quantity = cart[indexCart]['quantity']
+        updated = False
+        while not updated:
+            updated = update_in_cart(indexCart, indexItem, quantity)
+
+            if not updated:
+                print('The quantity of ' + sortedItems[indexItem][
+                    'name'] + ' in the cart is greater then the quantity in the stock.\n'
+                              'The maximum quantity is ' + str(sortedItems[indexItem]['quantity']))
+                quantity = int(input('Please, update the quantity in the cart: '))
+
+    print('The item in the cart has been updated\n')
+    return
+
 #*
 #* Cart core functions
 #*
@@ -234,6 +286,16 @@ def get_from_cart(id):
     return False, index
 
 
+def update_in_cart(indexCart, indexItem, quantity):
+    if quantity > sortedItems[indexItem]['quantity']:
+        return False
+
+    difference = sortedItems[indexItem]['quantity'] - quantity
+    cart[indexCart]['quantity'] = quantity
+
+    sortedItems[indexItem].update({'quantity': difference})
+    return True
+
 def delete_from_cart(id):
     success, index = get_from_cart(id)
     if not success:
@@ -245,63 +307,9 @@ def delete_from_cart(id):
     cart.pop(index)
     return True, index
 
-def updateFromCart(indexCart=None, indexItem=None):
-    if not indexCart:
-        id = int(input('Insert the id to be updated from the cart: '))
-        foundCart, indexCart = binarySearch(cart, 0, len(cart) - 1, id)
-        foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
-        if foundCart:
-            print('There are', cart[indexCart]['quantity'], 'product in the cart')
-            while True:
-                newQuantity = int(input('Update the quantity in the cart: : '))
-                if newQuantity > sortedItems[indexItem]['quantity']:
-                    print('The new quantity exceed the quantity in stock. The maximum quantity is',
-                          sortedItems[indexItem]['quantity'])
-                else:
-                    break
-            difference = cart[indexCart]['quantity'] - newQuantity
-            cart[indexCart]['quantity'] = newQuantity
-            alterStock(difference, item=sortedItems[indexItem])
-            print('The item has been updated\n')
-        else:
-            print('Item not in the cart\n')
-    else:
-        cart[indexCart]['name'] = sortedItems[indexItem]['name']
-        cart[indexCart]['price'] = sortedItems[indexItem]['price']
-        '''
-        newQuantity = cart[indexCart]['quantity']
-        while True:
-            if sortedItems[indexItem]['quantity'] < newQuantity:
-                print('The quantity of ' + sortedItems[indexItem][
-                    'name'] + ' in the cart is greater then the quantity in the stock.\n'
-                              'The maximum quantity is ' + str(sortedItems[indexItem]['quantity']))
-                newQuantity = int(input('Please, update the quantity in the cart: '))
-            else:
-                break
-        difference = cart[indexCart]['quantity'] - newQuantity
-        cart[indexCart]['quantity'] = newQuantity
-        alterStock(difference, item=sortedItems[indexItem])
-        '''
-        print('The item in the cart has been updated\n')
-    return
-
-
-def checkoutFromCart():
-    total = 0
-    print('SUMMARY:')
-    for item in cart:
-        printItem(item)
-        total += item['price'] * item['quantity']
-    print('TOTAL:', total)
-    print('Do you want to continue?')
-    if askConfirmation():
-        cart.clear()
-        print('The changes have been applied')
-    else:
-        print('The changes have not been applied')
-
-    return
-
+#*
+#* Utils functions
+#*
 
 def quit():
     # save all changes stored in memory to database file when application exit
@@ -316,12 +324,6 @@ def quit():
 def printItem(item):
     print('id:', item['id'], ' --- description:', item['name'], ' --- price:',
               item['price'], ' --- quantity:', item['quantity'])
-
-def alterStock(quantity, item=None, id=None):
-    if not item:
-        foundItem, indexItem = binarySearch(sortedItems, 0, len(sortedItems) - 1, id)
-        item = sortedItems[indexItem]
-    item['quantity'] += quantity
 
 
 def askConfirmation(message = 'Press Y for yes, any other character to back to menu: '):
@@ -347,9 +349,9 @@ def binarySearch(list, firstIndex, secondIndex, target):
         return False, firstIndex
 
 
-# define a callback function when application exit
-# using ´atexit´ python standard library
-atexit.register(quit)
-
 if __name__ == "__main__":
+    # define a callback function when application exit
+    # using ´atexit´ python standard library
+    atexit.register(quit)
+
     main()

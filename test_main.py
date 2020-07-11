@@ -108,5 +108,47 @@ class TestStockManager(unittest.TestCase):
         success, index = manager.delete_from_cart(20)
         self.assertEqual(success, False)
 
+    def test_item_updated_in_the_cart(self):
+        self.__init_stock__()
+        item = {'id': 70, 'name': "product that will be updated", 'price': 1.0, 'quantity': 50}
+
+        manager.insert_in_stock(item)
+        success, index = manager.get_from_stock(item['id'])
+        manager.insert_in_cart(index, 10)
+
+        successCart, indexCart = manager.get_from_cart(item['id'])
+        successItem, indexItem = manager.get_from_stock(item['id'])
+
+        self.assertEqual(successCart, True)
+        self.assertEqual(successItem, True)
+
+        self.assertEqual(manager.cart[indexCart]['quantity'], 10)
+        self.assertEqual(manager.sortedItems[indexItem]['quantity'], 40)
+
+        ok = manager.update_in_cart(indexCart, indexItem, 20)
+        self.assertEqual(ok, True)
+
+        self.assertEqual(manager.cart[indexCart]['quantity'], 20)
+        self.assertEqual(manager.sortedItems[indexItem]['quantity'], 20)
+
+    def test_item_updated_in_cart_no_enough_quantity(self):
+        self.__init_stock__()
+        item = {'id': 80, 'name': "only two product", 'price': 1.0, 'quantity': 2}
+
+        manager.insert_in_stock(item)
+        success, index = manager.get_from_stock(item['id'])
+        manager.insert_in_cart(index, 1)
+
+        successCart, indexCart = manager.get_from_cart(item['id'])
+        successItem, indexItem = manager.get_from_stock(item['id'])
+
+        self.assertEqual(successCart, True)
+        self.assertEqual(successItem, True)
+
+        ok = manager.update_in_cart(indexCart, indexItem, 2)
+        self.assertEqual(ok, False)
+
+
+
 if __name__ == '__main__':
     unittest.main()
