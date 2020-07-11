@@ -70,7 +70,7 @@ class TestStockManager(unittest.TestCase):
 
     def test_add_item_to_cart(self):
         self.__init_stock__()
-        item = {'id': 50, 'name': "product in cart", 'price': 1, 'quantity': 25}
+        item = {'id': 50, 'name': "product in cart", 'price': 1.0, 'quantity': 25}
         manager.insert_in_stock(item)
 
         success, index = manager.get_from_stock(item['id'])
@@ -83,6 +83,30 @@ class TestStockManager(unittest.TestCase):
         self.assertEqual(manager.cart[indexCart]['quantity'], 10)
         self.assertEqual(manager.sortedItems[index]['quantity'], 15)
 
+    def test_remove_item_from_cart(self):
+        self.__init_stock__()
+        item = {'id': 60, 'name': "product in cart that will be deleted", 'price': 1.0, 'quantity': 30}
+        # add item in the cart
+        manager.insert_in_stock(item)
+        success, index = manager.get_from_stock(item['id'])
+        manager.insert_in_cart(index, 10)
+
+        # remove item and test updated stock quantity
+        success, indexCart = manager.get_from_cart(item['id'])
+        self.assertEqual(manager.cart[indexCart]['quantity'], 10)
+        self.assertEqual(manager.sortedItems[index]['quantity'], 20)
+
+        success, index = manager.delete_from_cart(item['id'])
+        self.assertEqual(success, True)
+
+        success, index = manager.get_from_stock(item['id'])
+        self.assertEqual(manager.sortedItems[index]['quantity'], 30)
+
+    def test_remove_non_existing_item_from_cart(self):
+        self.__init_stock__()
+
+        success, index = manager.delete_from_cart(20)
+        self.assertEqual(success, False)
 
 if __name__ == '__main__':
     unittest.main()

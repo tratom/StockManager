@@ -197,6 +197,17 @@ def addToCart():
 
     return
 
+def deleteFromCart(id = None):
+    if not id:
+        id = int(input('Insert the id to be deleted from the cart: '))
+
+    succcess, index = delete_from_cart(id)
+    if success:
+        print('The item has been deleted from the cart\n')
+    else:
+        print('Item not in the cart\n')
+    return
+
 #*
 #* Cart core functions
 #*
@@ -216,7 +227,6 @@ def insert_in_cart(indexItem, quantity):
     return True
 
 
-
 def get_from_cart(id):
     found, index = binarySearch(cart, 0, len(cart) - 1, id)
     if found:
@@ -224,18 +234,16 @@ def get_from_cart(id):
     return False, index
 
 
-def deleteFromCart(id = None):
-    if not id:
-        id = int(input('Insert the id to be deleted from the cart: '))
-    found, index = binarySearch(cart, 0, len(cart) - 1, id)
-    if found:
-        cart.pop(index)
-        alterStock(cart[index]['quantity'], id=id)
-        print('The item has been deleted from the cart\n')
-    else:
-        print('Item not in the cart\n')
-    return
+def delete_from_cart(id):
+    success, index = get_from_cart(id)
+    if not success:
+        return False, index
 
+    success, indexItem = get_from_stock(id)
+    sortedItems[indexItem].update({'quantity': sortedItems[indexItem]['quantity'] + cart[index]['quantity']})
+
+    cart.pop(index)
+    return True, index
 
 def updateFromCart(indexCart=None, indexItem=None):
     if not indexCart:
