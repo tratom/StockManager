@@ -312,6 +312,10 @@ def delete_from_cart(id):
 #*
 
 def quit():
+    # clear cart and update quantity in stock
+    for c in cart:
+        delete_from_cart(c['id'])
+
     # save all changes stored in memory to database file when application exit
     database = open('database.txt', 'w')
     for item in sortedItems:

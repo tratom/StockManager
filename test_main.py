@@ -148,6 +148,27 @@ class TestStockManager(unittest.TestCase):
         ok = manager.update_in_cart(indexCart, indexItem, 2)
         self.assertEqual(ok, False)
 
+    def test_item_back_in_stock_after_quit(self):
+        self.__init_stock__()
+
+        success, index = manager.get_from_stock(25)
+        manager.insert_in_cart(index, 10)
+
+        successCart, indexCart = manager.get_from_cart(25)
+        successItem, indexItem = manager.get_from_stock(25)
+
+        self.assertEqual(successCart, True)
+        self.assertEqual(successItem, True)
+
+        self.assertEqual(manager.cart[indexCart]['quantity'], 10)
+        self.assertEqual(manager.sortedItems[indexItem]['quantity'], 2)
+
+        manager.quit()
+
+        self.__init_stock__()
+
+        self.assertEqual(manager.sortedItems[indexItem]['quantity'], 12)
+
 
 
 if __name__ == '__main__':
