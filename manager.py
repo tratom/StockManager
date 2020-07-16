@@ -282,7 +282,7 @@ def insert_in_cart(indexItem, quantity):
     cart.append(cartItem)
 
     # decrease and update quantity in stock
-    sortedItems[indexItem].update({'quantity': sortedItems[indexItem]['quantity'] - quantity})
+    sortedItems[indexItem]['quantity'] = sortedItems[indexItem]['quantity'] - quantity
 
     return True
 
@@ -298,10 +298,10 @@ def update_in_cart(indexCart, indexItem, quantity):
     if quantity > sortedItems[indexItem]['quantity']:
         return False
 
-    difference = sortedItems[indexItem]['quantity'] - quantity
+    difference = sortedItems[indexItem]['quantity'] - (quantity - cart[indexCart]['quantity'])
     cart[indexCart]['quantity'] = quantity
 
-    sortedItems[indexItem].update({'quantity': difference})
+    sortedItems[indexItem]['quantity'] = difference
     return True
 
 
@@ -311,7 +311,7 @@ def delete_from_cart(id):
         return False, index
 
     success, indexItem = get_from_stock(id)
-    sortedItems[indexItem].update({'quantity': sortedItems[indexItem]['quantity'] + cart[index]['quantity']})
+    sortedItems[indexItem]['quantity'] = sortedItems[indexItem]['quantity'] + cart[index]['quantity']
 
     cart.pop(index)
     return True, index
